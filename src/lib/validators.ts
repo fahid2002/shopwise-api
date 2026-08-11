@@ -38,10 +38,6 @@ export const validateRequest = (schema: ZodTypeAny): RequestHandler => {
       req.params = parsed.params as typeof req.params;
     }
 
-    if (parsed.query !== undefined) {
-      req.query = parsed.query as typeof req.query;
-    }
-
     next();
   };
 };
