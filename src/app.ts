@@ -21,7 +21,8 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: allowedOrigins.includes("*") ? true : allowedOrigins,
+    origin:
+      allowedOrigins.length === 0 ? false : allowedOrigins.includes("*") ? true : allowedOrigins,
     credentials: true
   })
 );
