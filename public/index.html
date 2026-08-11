@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shopwise API Client</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #17202a;
+        --muted: #667085;
+        --line: #d7dde5;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success: #15803d;
+        --danger: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      header {
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 18px 20px;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .brand p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .status {
+        min-width: 190px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f9fafb;
+        font-size: 13px;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 18px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      section,
+      aside {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      aside {
+        padding: 16px;
+      }
+
+      section {
+        padding: 18px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 17px;
+      }
+
+      h3 {
+        margin: 18px 0 10px;
+        font-size: 14px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        margin: 10px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 10px;
+        color: var(--text);
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 78px;
+        resize: vertical;
+      }
+
+      button {
+        border: 0;
+        border-radius: 6px;
+        background: var(--primary);
+        color: white;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 650;
+        padding: 10px 12px;
+      }
+
+      button:hover {
+        background: var(--primary-dark);
+      }
+
+      .ghost {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--text);
+      }
+
+      .ghost:hover {
+        background: #eef2f7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .row > * {
+        flex: 1;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tabs button {
+        background: #eef2f7;
+        color: var(--text);
+      }
+
+      .tabs button.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfcfe;
+      }
+
+      .item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .item span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      pre {
+        min-height: 160px;
+        max-height: 440px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101828;
+        color: #d1e9ff;
+        padding: 14px;
+        white-space: pre-wrap;
+      }
+
+      .ok {
+        color: var(--success);
+      }
+
+      .bad {
+        color: var(--danger);
+      }
+
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+
+        .bar,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <h1>Shopwise API Client</h1>
+          <p>Integrated frontend for auth, products, reviews, orders, and wishlist.</p>
+        </div>
+        <div class="status" id="sessionStatus">Not signed in</div>
+      </div>
+    </header>
+
+    <main>
+      <aside>
+        <h2>Account</h2>
+        <label>
+          Name
+          <input id="name" value="Shopwise Admin" />
+        </label>
+        <label>
+          Email
+          <input id="email" value="admin@shopwise.test" />
+        </label>
+        <label>
+          Password
+          <input id="password" type="password" value="admin123" />
+        </label>
+        <div class="row">
+          <button id="registerBtn">Register</button>
+          <button id="loginBtn" class="ghost">Login</button>
+        </div>
+
+        <h3>Quick IDs</h3>
+        <label>
+          Category ID
+          <input id="categoryId" placeholder="Create or paste category id" />
+        </label>
+        <label>
+          Product ID
+          <input id="productId" placeholder="Create or paste product id" />
+        </label>
+        <label>
+          Review ID
+          <input id="reviewId" placeholder="Paste review id" />
+        </label>
+        <label>
+          Order ID
+          <input id="orderId" placeholder="Paste order id" />
+        </label>
+        <label>
+          Wishlist ID
+          <input id="wishlistId" placeholder="Paste wishlist id" />
+        </label>
+      </aside>
+
+      <section>
+        <div class="tabs">
+          <button class="active" data-tab="products">Products</button>
+          <button data-tab="categories">Categories</button>
+          <button data-tab="reviews">Reviews</button>
+          <button data-tab="orders">Orders</button>
+          <button data-tab="wishlist">Wishlist</button>
+          <button data-tab="response">Response</button>
+        </div>
+
+        <div id="products" class="panel active">
+          <h2>Products</h2>
+          <div class="grid">
+            <div>
+              <label>Name <input id="productName" value="Wireless Mouse" /></label>
+              <label>Description <textarea id="productDescription">Fast wireless mouse with precise tracking.</textarea></label>
+            </div>
+            <div>
+              <label>Price <input id="productPrice" type="number" value="29.99" /></label>
+              <label>Stock <input id="productStock" type="number" value="20" /></label>
+              <label>Status
+                <select id="productStatus">
+                  <option>ACTIVE</option>
+                  <option>DRAFT</option>
+                  <option>ARCHIVED</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <button id="createProductBtn">Create Product</button>
+            <button id="loadProductsBtn" class="ghost">Load Products</button>
+            <button id="deleteProductBtn" class="ghost">Soft Delete Product</button>
+          </div>
+          <div id="productsList" class="list"></div>
+        </div>
+
+        <div id="categories" class="panel">
+          <h2>Categories</h2>
+          <label>Name <input id="categoryName" value="Accessories" /></label>
+          <label>Description <textarea id="categoryDescription">Everyday shopping accessories.</textarea></label>
+          <div class="row">
+            <button id="createCategoryBtn">Create Category</button>
+            <button id="loadCategoriesBtn" class="ghost">Load Categories</button>
+            <button id="deleteCategoryBtn" class="ghost">Soft Delete Category</button>
+          </div>
+          <div id="categoriesList" class="list"></div>
+        </div>
+
+        <div id="reviews" class="panel">
+          <h2>Reviews</h2>
+          <label>Rating <input id="rating" type="number" min="1" max="5" value="5" /></label>
+          <label>Comment <textarea id="comment">Excellent value for the price.</textarea></label>
+          <div class="row">
+            <button id="createReviewBtn">Create Review</button>
+            <button id="loadReviewsBtn" class="ghost">Load Reviews</button>
+            <button id="deleteReviewBtn" class="ghost">Soft Delete Review</button>
+          </div>
+          <div id="reviewsList" class="list"></div>
+        </div>
+
+        <div id="orders" class="panel">
+          <h2>Orders</h2>
+          <label>Shipping Address <input id="shippingAddress" value="House 12, Dhaka" /></label>
+          <label>Phone <input id="phone" value="+8801700000000" /></label>
+          <label>Quantity <input id="quantity" type="number" value="1" /></label>
+          <div class="row">
+            <button id="createOrderBtn">Create Order</button>
+            <button id="loadOrdersBtn" class="ghost">Load Orders</button>
+            <button id="deleteOrderBtn" class="ghost">Soft Delete Order</button>
+          </div>
+          <div id="ordersList" class="list"></div>
+        </div>
+
+        <div id="wishlist" class="panel">
+          <h2>Wishlist</h2>
+          <div class="row">
+            <button id="addWishlistBtn">Add Product</button>
+            <button id="loadWishlistBtn" class="ghost">Load Wishlist</button>
+            <button id="removeWishlistBtn" class="ghost">Remove Item</button>
+          </div>
+          <div id="wishlistList" class="list"></div>
+        </div>
+
+        <div id="response" class="panel">
+          <h2>Last API Response</h2>
+          <pre id="output">Ready.</pre>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        token: localStorage.getItem("shopwise_token") || "",
+        user: JSON.parse(localStorage.getItem("shopwise_user") || "null")
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const output = $("output");
+      const sessionStatus = $("sessionStatus");
+
+      const setOutput = (value) => {
+        output.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+      };
+
+      const setSession = (authResult) => {
+        if (!authResult?.token) return;
+        state.token = authResult.token;
+        state.user = authResult.user;
+        localStorage.setItem("shopwise_token", state.token);
+        localStorage.setItem("shopwise_user", JSON.stringify(state.user));
+        renderSession();
+      };
+
+      const renderSession = () => {
+        sessionStatus.innerHTML = state.user
+          ? `<strong class="ok">${state.user.role}</strong><br>${state.user.email}`
+          : '<strong class="bad">Not signed in</strong>';
+      };
+
+      const request = async (path, options = {}) => {
+        const headers = {
+          "Content-Type": "application/json",
+          ...(state.token ? { Authorization: `Bearer ${state.token}` } : {}),
+          ...(options.headers || {})
+        };
+        const response = await fetch(path, { ...options, headers });
+        const json = await response.json();
+        setOutput(json);
+        if (!response.ok) throw new Error(json.message || "Request failed");
+        return json;
+      };
+
+      const card = (title, lines, onClick) => {
+        const item = document.createElement("button");
+        item.className = "item ghost";
+        item.type = "button";
+        item.innerHTML = `<strong>${title}</strong>${lines.map((line) => `<span>${line}</span>`).join("<br>")}`;
+        item.addEventListener("click", onClick);
+        return item;
+      };
+
+      const loadCategories = async () => {
+        const json = await request("/api/categories");
+        const list = $("categoriesList");
+        list.innerHTML = "";
+        for (const category of json.data || []) {
+          list.append(
+            card(category.name, [category.id, category.status], () => {
+              $("categoryId").value = category.id;
+            })
+          );
+        }
+      };
+
+      const loadProducts = async () => {
+        const json = await request("/api/products");
+        const list = $("productsList");
+        list.innerHTML = "";
+        for (const product of json.data || []) {
+          list.append(
+            card(product.name, [`${product.price} USD`, product.id], () => {
+              $("productId").value = product.id;
+              $("categoryId").value = product.categoryId;
+            })
+          );
+        }
+      };
+
+      const loadReviews = async () => {
+        const json = await request("/api/reviews");
+        const list = $("reviewsList");
+        list.innerHTML = "";
+        for (const review of json.data || []) {
+          list.append(
+            card(`${review.rating}/5 for ${review.product.name}`, [review.id, review.comment || ""], () => {
+              $("reviewId").value = review.id;
+            })
+          );
+        }
+      };
+
+      const loadOrders = async () => {
+        const json = await request("/api/orders");
+        const list = $("ordersList");
+        list.innerHTML = "";
+        for (const order of json.data || []) {
+          list.append(
+            card(`Order ${order.status}`, [`${order.totalAmount} USD`, order.id], () => {
+              $("orderId").value = order.id;
+            })
+          );
+        }
+      };
+
+      const loadWishlist = async () => {
+        const json = await request("/api/wishlists");
+        const list = $("wishlistList");
+        list.innerHTML = "";
+        for (const item of json.data || []) {
+          list.append(
+            card(item.product.name, [item.product.id, item.id], () => {
+              $("wishlistId").value = item.id;
+              $("productId").value = item.product.id;
+            })
+          );
+        }
+      };
+
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-tab]").forEach((tab) => tab.classList.remove("active"));
+          document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+          button.classList.add("active");
+          $(button.dataset.tab).classList.add("active");
+        });
+      });
+
+      $("registerBtn").addEventListener("click", async () => {
+        const json = await request("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            name: $("name").value,
+            email: $("email").value,
+            password: $("password").value
+          })
+        });
+        setSession(json.data);
+      });
+
+      $("loginBtn").addEventListener("click", async () => {
+        const json = await request("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            email: $("email").value,
+            password: $("password").value
+          })
+        });
+        setSession(json.data);
+      });
+
+      $("createCategoryBtn").addEventListener("click", async () => {
+        const json = await request("/api/categories", {
+          method: "POST",
+          body: JSON.stringify({
+            name: $("categoryName").value,
+            description: $("categoryDescription").value,
+            status: "ACTIVE"
+          })
+        });
+        $("categoryId").value = json.data.id;
+        await loadCategories();
+      });
+
+      $("loadCategoriesBtn").addEventListener("click", loadCategories);
+      $("deleteCategoryBtn").addEventListener("click", async () => {
+        await request(`/api/categories/${$("categoryId").value}`, { method: "DELETE" });
+        await loadCategories();
+      });
+
+      $("createProductBtn").addEventListener("click", async () => {
+        const json = await request("/api/products", {
+          method: "POST",
+          body: JSON.stringify({
+            name: $("productName").value,
+            description: $("productDescription").value,
+            price: Number($("productPrice").value),
+            stock: Number($("productStock").value),
+            status: $("productStatus").value,
+            categoryId: $("categoryId").value
+          })
+        });
+        $("productId").value = json.data.id;
+        await loadProducts();
+      });
+
+      $("loadProductsBtn").addEventListener("click", loadProducts);
+      $("deleteProductBtn").addEventListener("click", async () => {
+        await request(`/api/products/${$("productId").value}`, { method: "DELETE" });
+        await loadProducts();
+      });
+
+      $("createReviewBtn").addEventListener("click", async () => {
+        const json = await request("/api/reviews", {
+          method: "POST",
+          body: JSON.stringify({
+            productId: $("productId").value,
+            rating: Number($("rating").value),
+            comment: $("comment").value
+          })
+        });
+        $("reviewId").value = json.data.id;
+        await loadReviews();
+      });
+
+      $("loadReviewsBtn").addEventListener("click", loadReviews);
+      $("deleteReviewBtn").addEventListener("click", async () => {
+        await request(`/api/reviews/${$("reviewId").value}`, { method: "DELETE" });
+        await loadReviews();
+      });
+
+      $("createOrderBtn").addEventListener("click", async () => {
+        const json = await request("/api/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            shippingAddress: $("shippingAddress").value,
+            phone: $("phone").value,
+            items: [{ productId: $("productId").value, quantity: Number($("quantity").value) }]
+          })
+        });
+        $("orderId").value = json.data.id;
+        await loadOrders();
+      });
+
+      $("loadOrdersBtn").addEventListener("click", loadOrders);
+      $("deleteOrderBtn").addEventListener("click", async () => {
+        await request(`/api/orders/${$("orderId").value}`, { method: "DELETE" });
+        await loadOrders();
+      });
+
+      $("addWishlistBtn").addEventListener("click", async () => {
+        const json = await request("/api/wishlists", {
+          method: "POST",
+          body: JSON.stringify({ productId: $("productId").value })
+        });
+        $("wishlistId").value = json.data.id;
+        await loadWishlist();
+      });
+
+      $("loadWishlistBtn").addEventListener("click", loadWishlist);
+      $("removeWishlistBtn").addEventListener("click", async () => {
+        await request(`/api/wishlists/${$("wishlistId").value}`, { method: "DELETE" });
+        await loadWishlist();
+      });
+
+      request("/api/health").catch((error) => setOutput(error.message));
+      renderSession();
+    </script>
+  </body>
+</html>

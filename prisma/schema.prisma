@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum ReviewStatus {
+  PUBLISHED
+  HIDDEN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum WishlistStatus {
+  ACTIVE
+  REMOVED
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      UserRole   @default(CUSTOMER)
+  status    UserStatus @default(ACTIVE)
+  isDeleted Boolean    @default(false) @map("is_deleted")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  orders    Order[]
+  reviews   Review[]
+  wishlists Wishlist[]
+
+  @@index([email])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("users")
+}
+
+model Category {
+  id          String         @id @default(uuid())
+  name        String
+  slug        String         @unique
+  description String?
+  status      CategoryStatus @default(ACTIVE)
+  isDeleted   Boolean        @default(false) @map("is_deleted")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  name        String
+  slug        String        @unique
+  description String
+  price       Decimal       @db.Decimal(10, 2)
+  stock       Int           @default(0)
+  imageUrl    String?       @map("image_url")
+  status      ProductStatus @default(DRAFT)
+  categoryId  String        @map("category_id")
+  isDeleted   Boolean       @default(false) @map("is_deleted")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+  wishlists  Wishlist[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("products")
+}
+
+model Review {
+  id        String       @id @default(uuid())
+  rating    Int
+  comment   String?
+  status    ReviewStatus @default(PUBLISHED)
+  userId    String       @map("user_id")
+  productId String       @map("product_id")
+  isDeleted Boolean      @default(false) @map("is_deleted")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@index([userId])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("reviews")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  totalAmount     Decimal     @default(0) @db.Decimal(10, 2) @map("total_amount")
+  status          OrderStatus @default(PENDING)
+  shippingAddress String      @map("shipping_address")
+  phone           String
+  notes           String?
+  isDeleted       Boolean     @default(false) @map("is_deleted")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  productId String   @map("product_id")
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+  @@index([orderId])
+  @@index([productId])
+  @@index([isDeleted])
+  @@map("order_items")
+}
+
+model Wishlist {
+  id        String         @id @default(uuid())
+  userId    String         @map("user_id")
+  productId String         @map("product_id")
+  status    WishlistStatus @default(ACTIVE)
+  isDeleted Boolean        @default(false) @map("is_deleted")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("wishlists")
+}
