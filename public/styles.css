@@ -142,6 +142,8 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  border: 0;
+  background: transparent;
   color: var(--ink);
   font-size: 22px;
   font-weight: 800;
@@ -157,12 +159,25 @@ img {
   color: #fff;
 }
 
+.brand-button {
+  border-radius: 999px;
+  padding: 4px 8px 4px 0;
+  transition:
+    background 0.18s,
+    transform 0.18s;
+}
+
+.brand-button:hover {
+  background: rgba(91, 80, 229, 0.08);
+  transform: translateY(-1px);
+}
+
 .brand-mark.light {
-  color: #fff;
+  color: var(--ink);
 }
 
 .brand-mark.light .material-symbols-outlined {
-  background: #fff;
+  background: transparent;
   color: var(--primary);
 }
 
@@ -304,6 +319,8 @@ textarea:focus {
 
 .app-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar {
@@ -311,12 +328,14 @@ textarea:focus {
   top: 0;
   z-index: 30;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(150px, auto) minmax(420px, 1fr) minmax(280px, auto);
   align-items: center;
-  gap: 24px;
-  padding: 14px clamp(16px, 4vw, 34px);
-  background: var(--dark);
-  color: #fff;
+  gap: 18px;
+  padding: 14px clamp(18px, 5vw, 42px);
+  border-bottom: 1px solid rgba(222, 220, 235, 0.72);
+  background: rgba(252, 248, 255, 0.94);
+  color: var(--ink);
+  backdrop-filter: blur(18px);
 }
 
 .main-nav,
@@ -329,6 +348,16 @@ textarea:focus {
   scrollbar-width: none;
 }
 
+.main-nav {
+  justify-self: center;
+  max-width: 610px;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--dark);
+  padding: 5px;
+  box-shadow: 0 14px 30px rgba(24, 25, 38, 0.16);
+}
+
 .main-nav::-webkit-scrollbar,
 .mobile-nav::-webkit-scrollbar {
   display: none;
@@ -338,8 +367,9 @@ textarea:focus {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.68);
-  padding: 9px 14px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 9px 18px;
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -353,20 +383,35 @@ textarea:focus {
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-end;
+  gap: 13px;
 }
 
 .global-search {
-  width: min(320px, 27vw);
-  height: 45px;
+  width: 138px;
+  height: 38px;
   display: flex;
   grid-template-columns: none;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   border-radius: 999px;
-  background: #e7e4ef;
+  background: #f0eef9;
   color: #54556c;
-  padding: 0 16px;
+  padding: 0 12px;
+  transition:
+    width 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.global-search:focus-within {
+  width: 190px;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(91, 80, 229, 0.1);
+}
+
+.global-search .material-symbols-outlined {
+  font-size: 19px;
 }
 
 .global-search input {
@@ -377,6 +422,8 @@ textarea:focus {
   padding: 0;
   color: #323247;
   box-shadow: none;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .global-search input:focus {
@@ -385,24 +432,34 @@ textarea:focus {
 }
 
 .round-btn,
+.plain-action,
 .avatar-btn,
 .icon-btn {
   position: relative;
   display: grid;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: #eceaf5;
+  background: transparent;
   color: var(--dark);
+}
+
+.round-btn:hover,
+.plain-action:hover,
+.avatar-btn:hover,
+.icon-btn:hover {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
 }
 
 .avatar-btn {
   overflow: hidden;
   border: 2px solid #eceaf5;
   padding: 0;
+  background: #eceaf5;
 }
 
 .avatar-btn img {
@@ -413,14 +470,14 @@ textarea:focus {
 
 .badge {
   position: absolute;
-  right: 7px;
-  top: 7px;
+  right: 3px;
+  top: 2px;
   min-width: 17px;
   height: 17px;
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--primary);
+  background: #dc2626;
   color: #fff;
   font-size: 10px;
   font-weight: 800;
@@ -430,13 +487,66 @@ textarea:focus {
   display: none;
   justify-content: flex-start;
   padding: 10px 16px;
-  background: var(--dark-2);
+  background: var(--dark);
 }
 
 .page-wrap {
+  flex: 1;
   max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
   padding: clamp(18px, 4vw, 42px);
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1440px, calc(100% - 36px));
+  margin: 14px auto 0;
+  padding: 28px 0 34px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.site-footer p {
+  max-width: 640px;
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.footer-brand .material-symbols-outlined {
+  color: var(--primary);
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.site-footer a {
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink);
+  padding: 9px 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  background: var(--primary);
+  color: #fff;
 }
 
 .page-head {
@@ -1043,7 +1153,11 @@ tr:last-child td {
   }
 
   .global-search {
-    width: min(340px, 45vw);
+    width: min(210px, 34vw);
+  }
+
+  .global-search:focus-within {
+    width: min(260px, 42vw);
   }
 
   .grid.stats,
@@ -1078,26 +1192,33 @@ tr:last-child td {
 
   .topbar {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
+    padding: 12px 14px;
   }
 
   .top-actions {
     width: 100%;
     gap: 10px;
+    justify-content: flex-start;
   }
 
   .global-search {
     width: auto;
-    flex: 1 1 100%;
+    flex: 1 1 160px;
     order: 1;
   }
 
+  .global-search:focus-within {
+    width: auto;
+  }
+
   .round-btn,
+  .plain-action,
   .avatar-btn,
   .icon-btn {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .page-wrap {
@@ -1142,5 +1263,16 @@ tr:last-child td {
   .popover {
     right: 14px;
     top: 142px;
+  }
+
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    width: calc(100% - 28px);
+    padding-bottom: 26px;
+  }
+
+  .site-footer nav {
+    justify-content: flex-start;
   }
 }

@@ -69,18 +69,21 @@
 
     <section class="app-shell hidden" id="appShell">
       <header class="topbar">
-        <div class="brand-mark light">
+        <button class="brand-mark light brand-button" id="brandHomeBtn" type="button" aria-label="Refresh Shopwise dashboard">
           <span class="material-symbols-outlined">local_mall</span>
           <strong>Shopwise</strong>
-        </div>
+        </button>
 
         <nav class="main-nav" id="mainNav" aria-label="Primary navigation"></nav>
 
         <div class="top-actions">
           <label class="global-search">
             <span class="material-symbols-outlined">search</span>
-            <input id="globalSearch" type="search" placeholder="Search..." />
+            <input id="globalSearch" type="search" placeholder="Search" />
           </label>
+          <button class="plain-action" data-page="overview" type="button" aria-label="Overview">
+            <span class="material-symbols-outlined">grid_view</span>
+          </button>
           <button class="round-btn" id="notificationsBtn" type="button" aria-label="Notifications">
             <span class="material-symbols-outlined">notifications</span>
             <span class="badge" id="notificationBadge">0</span>
@@ -100,6 +103,21 @@
       <aside class="popover profile-popover hidden" id="profilePanel"></aside>
 
       <main class="page-wrap" id="view" tabindex="-1"></main>
+
+      <footer class="site-footer">
+        <div>
+          <div class="footer-brand">
+            <span class="material-symbols-outlined">local_mall</span>
+            <strong>Shopwise API</strong>
+          </div>
+          <p>Express, Prisma, PostgreSQL, JWT authentication, and a responsive admin dashboard for the backend assignment.</p>
+        </div>
+        <nav aria-label="Footer links">
+          <a href="/api/docs" target="_blank" rel="noreferrer">API Docs</a>
+          <a href="/api/health" target="_blank" rel="noreferrer">Health</a>
+          <a href="https://github.com/fahid2002/shopwise-api" target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
+      </footer>
     </section>
 
     <div class="modal-root hidden" id="modalRoot"></div>

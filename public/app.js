@@ -28,9 +28,10 @@ const pages = [
   { id: "orders", label: "Orders", icon: "receipt_long" },
   { id: "categories", label: "Categories", icon: "category" },
   { id: "reviews", label: "Reviews", icon: "reviews" },
-  { id: "customers", label: "Customers", icon: "group" },
-  { id: "wishlist", label: "Wishlist", icon: "favorite" }
+  { id: "customers", label: "Customers", icon: "group" }
 ];
+
+const dataCacheTtl = 30000;
 
 const state = {
   page: "overview",
@@ -53,6 +54,7 @@ const state = {
   selectedOrderId: null,
   selectedReviewId: null,
   selectedCustomerId: null,
+  lastLoaded: {},
   notifications: readJson("shopwise_notifications", [
     {
       id: crypto.randomUUID(),
@@ -201,16 +203,21 @@ function currentHashPage() {
   return window.location.hash.replace("#/", "") || "overview";
 }
 
-function go(page) {
+function go(page, options = {}) {
   const id = page || "overview";
-  window.location.hash = `#/${id}`;
+  const nextHash = `#/${id}`;
+
+  if (window.location.hash !== nextHash) {
+    history.pushState(null, "", nextHash);
+  }
+
+  setPage(id, options);
 }
 
 function renderNav() {
   const desktop = $("#mainNav");
   const mobile = $("#mobileNav");
-  const links = [...pages, { id: "settings", label: "Settings", icon: "settings" }];
-  const html = links
+  const html = pages
     .map(
       (page) => `
         <button class="nav-link ${state.page === page.id ? "active" : ""}" data-page="${page.id}" type="button">
@@ -221,6 +228,19 @@ function renderNav() {
 
   desktop.innerHTML = html;
   mobile.innerHTML = html;
+}
+
+async function setPage(page, options = {}) {
+  state.page = page || "overview";
+  render();
+
+  if (!state.token && state.page !== "login") return;
+
+  await ensureDataForPage(state.page, options);
+
+  if (state.page === page) {
+    render();
+  }
 }
 
 function bindStaticEvents() {
@@ -248,6 +268,15 @@ function bindStaticEvents() {
     addNotification("Google login", "OAuth button clicked. Backend assignment currently uses JWT email/password auth.");
   });
 
+  $("#brandHomeBtn").addEventListener("click", async () => {
+    state.query = "";
+    $("#globalSearch").value = "";
+    go("overview", { force: true });
+    await loadAll();
+    if (state.page === "overview") render();
+    toast("Dashboard refreshed");
+  });
+
   document.body.addEventListener("click", (event) => {
     const pageButton = event.target.closest("[data-page]");
     if (pageButton) {
@@ -265,10 +294,10 @@ function bindStaticEvents() {
     state.query = event.target.value.trim();
     if (state.query) {
       state.page = "search";
+      history.replaceState(null, "", "#/search");
       render();
     } else if (state.page === "search") {
-      state.page = "overview";
-      render();
+      go("overview");
     }
   });
 
@@ -286,28 +315,27 @@ function bindStaticEvents() {
     renderProfilePopover();
   });
 
-  window.addEventListener("hashchange", async () => {
-    const nextPage = currentHashPage();
-    state.page = nextPage;
-    if (!state.token && nextPage !== "login") return;
-    await ensureDataForPage(nextPage);
-    render();
-  });
+  window.addEventListener("popstate", () => setPage(currentHashPage()));
 }
 
 async function loadAll() {
+  const now = Date.now();
   const publicRequests = [
     api("/api/health").then((result) => {
       state.health = result.data;
+      state.lastLoaded.health = now;
     }),
     api("/api/categories?limit=100").then((result) => {
       state.categories = result.data || [];
+      state.lastLoaded.categories = now;
     }),
     api("/api/products?limit=100").then((result) => {
       state.products = result.data || [];
+      state.lastLoaded.products = now;
     }),
     api("/api/reviews?limit=100").then((result) => {
       state.reviews = result.data || [];
+      state.lastLoaded.reviews = now;
     })
   ];
 
@@ -318,15 +346,19 @@ async function loadAll() {
       api("/api/auth/me").then((result) => {
         state.user = result.data;
         saveJson("shopwise_user", state.user);
+        state.lastLoaded.me = now;
       }),
       api("/api/orders?limit=100").then((result) => {
         state.orders = result.data || [];
+        state.lastLoaded.orders = now;
       }),
       api("/api/users?limit=100").then((result) => {
         state.users = result.data || [];
+        state.lastLoaded.users = now;
       }),
       api("/api/wishlists?limit=100").then((result) => {
         state.wishlist = result.data || [];
+        state.lastLoaded.wishlist = now;
       })
     ];
     await Promise.allSettled(privateRequests);
@@ -338,31 +370,41 @@ async function loadAll() {
   renderNotificationBadge();
 }
 
-async function ensureDataForPage(page) {
+function shouldLoad(key, options = {}) {
+  return options.force || !state.lastLoaded[key] || Date.now() - state.lastLoaded[key] > dataCacheTtl;
+}
+
+async function ensureDataForPage(page, options = {}) {
   try {
-    if (["products", "overview", "search", "wishlist", "orders"].includes(page)) {
+    if (["products", "overview", "search", "wishlist", "orders"].includes(page) && shouldLoad("products", options)) {
       const result = await api("/api/products?limit=100");
       state.products = result.data || [];
+      state.lastLoaded.products = Date.now();
     }
-    if (["categories", "overview", "search", "products"].includes(page)) {
+    if (["categories", "overview", "search", "products"].includes(page) && shouldLoad("categories", options)) {
       const result = await api("/api/categories?limit=100");
       state.categories = result.data || [];
+      state.lastLoaded.categories = Date.now();
     }
-    if (["reviews", "categories", "overview", "search"].includes(page)) {
+    if (["reviews", "categories", "overview", "search"].includes(page) && shouldLoad("reviews", options)) {
       const result = await api("/api/reviews?limit=100");
       state.reviews = result.data || [];
+      state.lastLoaded.reviews = Date.now();
     }
-    if (state.token && ["orders", "overview", "search"].includes(page)) {
+    if (state.token && ["orders", "overview", "search"].includes(page) && shouldLoad("orders", options)) {
       const result = await api("/api/orders?limit=100");
       state.orders = result.data || [];
+      state.lastLoaded.orders = Date.now();
     }
-    if (state.token && ["customers", "overview", "search"].includes(page)) {
+    if (state.token && ["customers", "overview", "search"].includes(page) && shouldLoad("users", options)) {
       const result = await api("/api/users?limit=100");
       state.users = result.data || [];
+      state.lastLoaded.users = Date.now();
     }
-    if (state.token && ["wishlist", "overview", "search"].includes(page)) {
+    if (state.token && ["wishlist", "overview", "search"].includes(page) && shouldLoad("wishlist", options)) {
       const result = await api("/api/wishlists?limit=100");
       state.wishlist = result.data || [];
+      state.lastLoaded.wishlist = Date.now();
     }
   } catch (error) {
     toast(error.message, "error");
