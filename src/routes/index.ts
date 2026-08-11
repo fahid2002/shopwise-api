@@ -76,6 +76,8 @@ const apiDocumentation = [
     endpoints: [
       "POST /api/wishlists",
       "GET /api/wishlists",
+      "GET /api/wishlists/:id",
+      "PATCH /api/wishlists/:id",
       "DELETE /api/wishlists/:id"
     ]
   }

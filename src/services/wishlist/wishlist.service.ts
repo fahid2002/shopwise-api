@@ -3,7 +3,11 @@ import { ProductStatus, WishlistStatus, type Prisma } from "@prisma/client";
 import { AppError } from "../../lib/errors";
 import { getPagination } from "../../lib/pagination";
 import { prisma } from "../../lib/prisma";
-import type { CreateWishlistInput, WishlistQuery } from "./wishlist.validation";
+import type {
+  CreateWishlistInput,
+  UpdateWishlistInput,
+  WishlistQuery
+} from "./wishlist.validation";
 
 const wishlistInclude = {
   product: {
@@ -93,6 +97,40 @@ export const getWishlistItems = async (userId: string, query: WishlistQuery) => 
       total
     }
   };
+};
+
+export const getWishlistItemById = async (id: string, userId: string) => {
+  const item = await prisma.wishlist.findFirst({
+    where: {
+      id,
+      userId,
+      isDeleted: false
+    },
+    include: wishlistInclude
+  });
+
+  if (!item) {
+    throw new AppError(404, "Wishlist item not found");
+  }
+
+  return item;
+};
+
+export const updateWishlistItem = async (
+  id: string,
+  userId: string,
+  payload: UpdateWishlistInput
+) => {
+  await getWishlistItemById(id, userId);
+
+  return prisma.wishlist.update({
+    where: { id },
+    data: {
+      status: payload.status,
+      isDeleted: payload.status === WishlistStatus.REMOVED ? true : undefined
+    },
+    include: wishlistInclude
+  });
 };
 
 export const removeWishlistItem = async (id: string, userId: string) => {

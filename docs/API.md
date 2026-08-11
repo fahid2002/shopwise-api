@@ -3,7 +3,7 @@
 Base URL:
 
 - Local: `http://localhost:5000`
-- Live: replace with the deployed Vercel or Render URL after deployment
+- Live: `https://shopwise-api-phi.vercel.app`
 
 All responses follow this structure:
 
@@ -192,6 +192,8 @@ Create body:
 | --- | --- | --- | --- |
 | POST | `/api/wishlists` | User | Add a product to wishlist |
 | GET | `/api/wishlists` | User | Get own wishlist |
+| GET | `/api/wishlists/:id` | User | Get one wishlist item |
+| PATCH | `/api/wishlists/:id` | User | Update wishlist item status |
 | DELETE | `/api/wishlists/:id` | User | Remove an item from own wishlist |
 
 Create body:
@@ -199,6 +201,14 @@ Create body:
 ```json
 {
   "productId": "product-uuid"
+}
+```
+
+Update body:
+
+```json
+{
+  "status": "ACTIVE"
 }
 ```
 

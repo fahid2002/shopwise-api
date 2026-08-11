@@ -1,3 +1,4 @@
+import { WishlistStatus } from "@prisma/client";
 import { z } from "zod";
 
 import { idParamSchema } from "../../lib/validators";
@@ -17,5 +18,12 @@ export const createWishlistSchema = z.object({
 
 export const wishlistIdParamSchema = idParamSchema;
 
+export const updateWishlistSchema = idParamSchema.extend({
+  body: z.object({
+    status: z.nativeEnum(WishlistStatus)
+  })
+});
+
 export type WishlistQuery = z.infer<typeof wishlistQuerySchema>["query"];
 export type CreateWishlistInput = z.infer<typeof createWishlistSchema>["body"];
+export type UpdateWishlistInput = z.infer<typeof updateWishlistSchema>["body"];
