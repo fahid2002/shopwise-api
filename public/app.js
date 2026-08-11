@@ -268,6 +268,16 @@ function bindStaticEvents() {
     addNotification("Google login", "OAuth button clicked. Backend assignment currently uses JWT email/password auth.");
   });
 
+  $("#togglePasswordBtn").addEventListener("click", () => {
+    const passwordInput = $("#loginPassword");
+    const icon = $("#togglePasswordBtn .material-symbols-outlined");
+    const isHidden = passwordInput.type === "password";
+
+    passwordInput.type = isHidden ? "text" : "password";
+    icon.textContent = isHidden ? "visibility_off" : "visibility";
+    $("#togglePasswordBtn").setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+  });
+
   $("#brandHomeBtn").addEventListener("click", async () => {
     state.query = "";
     $("#globalSearch").value = "";

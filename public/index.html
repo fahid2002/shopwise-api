@@ -41,12 +41,17 @@
           </label>
           <label>
             Password
-            <input
-              id="loginPassword"
-              type="password"
-              value="admin123"
-              autocomplete="current-password"
-            />
+            <span class="password-field">
+              <input
+                id="loginPassword"
+                type="password"
+                value="admin123"
+                autocomplete="current-password"
+              />
+              <button id="togglePasswordBtn" type="button" aria-label="Show password">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </span>
           </label>
           <button class="btn primary" type="submit">
             <span class="material-symbols-outlined">login</span>
